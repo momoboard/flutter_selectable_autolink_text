@@ -1,3 +1,7 @@
+## [2.4.1] - 2023-01-15
+
+* Fix longPress event
+
 ## [2.4.0] - 2023-01-15
 
 * Support Flutter 3.3.0
