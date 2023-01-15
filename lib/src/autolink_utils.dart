@@ -1,6 +1,6 @@
 import 'link_attr.dart';
 
-class AutoLinkUtils {
+abstract class AutoLinkUtils {
   AutoLinkUtils._();
 
   static const urlRegExpPattern =
@@ -10,22 +10,5 @@ class AutoLinkUtils {
   static const defaultLinkRegExpPattern =
       '($urlRegExpPattern|$phoneNumberRegExpPattern|$emailRegExpPattern)';
 
-  static LinkAttribute shrinkUrl(String url) {
-    final text = () {
-      try {
-        final uri = Uri.parse(url);
-        final displayUrl = '${uri.host}${uri.path}';
-        if (displayUrl.isEmpty) {
-          return url;
-        } else if (displayUrl.length > 30) {
-          return '${displayUrl.substring(0, 29)}…';
-        } else {
-          return displayUrl;
-        }
-      } on FormatException catch (_) {
-        return url;
-      }
-    }();
-    return LinkAttribute(text, link: url);
-  }
+  static LinkAttribute shrinkUrl(String url) => LinkAttribute.shrinkUrl(url);
 }

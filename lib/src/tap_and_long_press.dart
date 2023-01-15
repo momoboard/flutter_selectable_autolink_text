@@ -3,8 +3,7 @@ import 'dart:async';
 import 'package:flutter/gestures.dart';
 
 class TapAndLongPressGestureRecognizer extends TapGestureRecognizer {
-  TapAndLongPressGestureRecognizer({Object? debugOwner})
-      : super(debugOwner: debugOwner);
+  TapAndLongPressGestureRecognizer({super.debugOwner});
 
   GestureLongPressCallback? onLongPress;
 
@@ -27,15 +26,21 @@ class TapAndLongPressGestureRecognizer extends TapGestureRecognizer {
   void addAllowedPointer(PointerDownEvent event) {
     if (state == GestureRecognizerState.ready) {
       _longPressTimer = Timer(
-          _longPressDeadline, () => didExceedLongPressDeadlineWithEvent(event));
+        _longPressDeadline,
+        () => didExceedLongPressDeadlineWithEvent(event),
+      );
     }
     super.addAllowedPointer(event);
   }
 
   void didExceedLongPressDeadlineWithEvent(PointerDownEvent event) {
+    final onLongPress = this.onLongPress;
     if (onLongPress != null) {
-      invokeCallback<void>('onLongPress', onLongPress!);
-      rejectGesture(primaryPointer!);
+      invokeCallback<void>('onLongPress', onLongPress);
+      final primaryPointer = this.primaryPointer;
+      if (primaryPointer != null) {
+        rejectGesture(primaryPointer);
+      }
     }
   }
 
@@ -63,7 +68,7 @@ class TapAndLongPressGestureRecognizer extends TapGestureRecognizer {
 
   void _stopLongPressTimer() {
     if (_longPressTimer != null) {
-      _longPressTimer!.cancel();
+      _longPressTimer?.cancel();
       _longPressTimer = null;
     }
   }

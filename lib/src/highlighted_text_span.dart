@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/widgets.dart';
 
@@ -17,22 +16,15 @@ class HighlightedTextSpan extends TextSpan {
   final _StyleHelper _styleHelper;
 
   HighlightedTextSpan({
-    String? text,
-    List<InlineSpan>? children,
-    TextStyle? style,
-    GestureRecognizer? recognizer,
-    String? semanticsLabel,
+    super.text,
+    super.children,
+    super.style,
+    super.recognizer,
+    super.semanticsLabel,
     TextStyle? highlightedStyle,
-  })  : _styleHelper = _StyleHelper(
+  }) : _styleHelper = _StyleHelper(
           normalStyle: style,
           highlightedStyle: highlightedStyle,
-        ),
-        super(
-          text: text,
-          children: children,
-          style: style,
-          recognizer: recognizer,
-          semanticsLabel: semanticsLabel,
         );
 
   @override
@@ -51,19 +43,21 @@ class HighlightedTextSpan extends TextSpan {
   }
 
   @override
-  int get hashCode => hashValues(isHighlighted, super.hashCode);
+  int get hashCode => Object.hash(isHighlighted, super.hashCode);
 
   static bool clearHighlight(TextSpan span) {
     var result = false;
     if (span is HighlightedTextSpan) {
-      result = span.isHighlighted || result;
+      result = result || span.isHighlighted;
       span.isHighlighted = false;
     }
-    result =
-        span.children?.where((c) => clearHighlight(c as TextSpan)).isNotEmpty ==
-                true ||
-            result;
-    return result;
+    return result ||
+        span.children
+                ?.where((c) => c is TextSpan)
+                .cast<TextSpan>()
+                .where(clearHighlight)
+                .isNotEmpty ==
+            true;
   }
 
   @override
@@ -71,15 +65,16 @@ class HighlightedTextSpan extends TextSpan {
     TextPosition position,
     Accumulator offset,
   ) {
+    final text = this.text;
     if (text == null) return null;
 
     final targetOffset = position.offset;
     final startOffset = offset.value;
-    final endOffset = offset.value + text!.length - 1;
+    final endOffset = offset.value + text.length - 1;
     if (startOffset <= targetOffset && targetOffset <= endOffset) {
       return this;
     }
-    offset.increment(text!.length);
+    offset.increment(text.length);
     return null;
   }
 }
