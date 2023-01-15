@@ -139,7 +139,7 @@ class _SelectableTextSelectionGestureDetectorBuilder
   void onSingleLongTapStart(LongPressStartDetails details) {
     _cancelSingleLongTapEnd = false;
     final position = renderEditable.getPositionForPoint(details.globalPosition);
-    final span = renderEditable.text!.getSpanForPosition(position);
+    final span = renderEditable.text?.getSpanForPosition(position);
     if (span is TextSpan) {
       final recognizer = span.recognizer;
       GestureLongPressCallback? onLongPress;
@@ -148,19 +148,24 @@ class _SelectableTextSelectionGestureDetectorBuilder
       else if (recognizer is TapAndLongPressGestureRecognizer)
         onLongPress = recognizer.onLongPress;
       if (onLongPress != null) {
-        renderEditable.selectPosition(cause: SelectionChangedCause.tap);
+        renderEditable.selectPositionAt(
+          from: details.globalPosition,
+          cause: SelectionChangedCause.tap,
+        );
         _cancelSingleLongTapEnd = true;
         onLongPress();
         return;
       }
     }
     if (delegate.selectionEnabled) {
-      renderEditable.selectWord(cause: SelectionChangedCause.longPress);
+      renderEditable.selectWordsInRange(
+        from: details.globalPosition,
+        cause: SelectionChangedCause.longPress,
+      );
       Feedback.forLongPress(_state.context);
     }
-    if (_state.widget.onLongPress != null) {
-      _state.widget.onLongPress!(details.localPosition, details.globalPosition);
-    }
+    _state.widget.onLongPress
+        ?.call(details.localPosition, details.globalPosition);
   }
 
   @override
