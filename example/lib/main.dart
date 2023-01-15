@@ -4,32 +4,27 @@ import 'package:selectable_autolink_text/selectable_autolink_text.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(_MyApp());
 
-class MyApp extends StatelessWidget {
+class _MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Example',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         scaffoldBackgroundColor: Colors.white,
       ),
-      home: MyHomePage(),
+      home: _MyHomePage(),
       debugShowCheckedModeBanner: false,
     );
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class _MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: const Text('Selectable Autolink Text'),
-      ),
+      appBar: AppBar(title: const Text('Selectable Autolink Text')),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),
@@ -41,6 +36,7 @@ class MyHomePage extends StatelessWidget {
             _custom(context),
             const Divider(height: 32),
             _moreAdvanced(context),
+            SelectableText(''),
           ],
         ),
       ),
@@ -59,8 +55,8 @@ class MyHomePage extends StatelessWidget {
         color: Colors.blueAccent,
         backgroundColor: Colors.blueAccent.withAlpha(0x33),
       ),
-      onTap: (url) => launch(url, forceSafariVC: false),
-      onLongPress: (url) => _share(url),
+      onTap: _launchUrl,
+      onLongPress: _share,
     );
   }
 
@@ -79,19 +75,20 @@ email: mail@example.com''',
       ),
       onTransformDisplayLink: AutoLinkUtils.shrinkUrl,
       onTap: (url) async {
-        print('🌶Tap: $url');
-        if (await canLaunch(url)) {
-          launch(url, forceSafariVC: false);
-        } else {
-          _alert(context, '🌶Tap', url);
+        print('🌶 Tap: $url');
+        if (!await _launchUrl(url)) {
+          _alert(context, '🌶 Tap', url);
         }
       },
       onLongPress: (url) {
-        print('🍔LongPress: $url');
+        print('🍔 LongPress: $url');
         _share(url);
       },
       onTapOther: (local, global) {
-        print('🍇️onTapOther: $local, $global');
+        print('🍇️ onTapOther: $local, $global');
+      },
+      onLongPressOther: (local, global) {
+        print('🍊️ onLongPressOther: $local, $global');
       },
     );
   }
@@ -110,10 +107,10 @@ email: mail@example.com''',
       ),
       linkRegExpPattern: '(@[\\w]+|#[\\w]+|${AutoLinkUtils.urlRegExpPattern})',
       onTransformDisplayLink: AutoLinkUtils.shrinkUrl,
-      onTap: (url) => _alert(context, '🍒Tap', url),
-      onLongPress: (url) => _alert(context, '🍩LongPress', url),
+      onTap: (url) => _alert(context, '🍒 Tap', url),
+      onLongPress: (url) => _alert(context, '🍩 LongPress', url),
       onDebugMatch: (match) {
-        // for debug
+        /// for debug
         print('DebugMatch:[${match.start}-${match.end}]`${match.group(0)}`');
       },
     );
@@ -125,10 +122,10 @@ email: mail@example.com''',
       color: Colors.blueAccent,
       backgroundColor: Colors.blueAccent.withAlpha(0x33),
     );
-    final pinkStyle = const TextStyle(color: Colors.pink);
+    final orangeStyle = TextStyle(color: Colors.orange);
     final boldStyle = const TextStyle(fontWeight: FontWeight.bold);
     final italicStyle = const TextStyle(fontStyle: FontStyle.italic);
-    final bigStyle = const TextStyle(fontSize: 20);
+    final bigStyle = const TextStyle(fontSize: 24);
     final regExpPattern = r'\[([^\]]+)\]\(([^\s\)]+)\)';
     final regExp = RegExp(regExpPattern);
 
@@ -140,41 +137,58 @@ More advanced usage
 [This text is bold](bold)
 This text is normal
 [This text is italic](italic)
-[This text is pink](pink)
+[This text is orange](orange)
 [This text is big](big)''',
       linkRegExpPattern: regExpPattern,
       onTransformDisplayLink: (s) {
         final match = regExp.firstMatch(s);
-        if (match?.groupCount == 2) {
-          final text1 = match!.group(1);
-          final text2 = match.group(2);
+        if (match != null && match.groupCount == 2) {
+          final text1 = match.group(1)!;
+          final text2 = match.group(2)!;
           switch (text2) {
             case 'bold':
-              return LinkAttribute(text1!, style: boldStyle);
+              return LinkAttribute(text1, style: boldStyle);
             case 'italic':
-              return LinkAttribute(text1!, style: italicStyle);
-            case 'pink':
-              return LinkAttribute(text1!, style: pinkStyle);
+              return LinkAttribute(text1, style: italicStyle);
+            case 'orange':
+              return LinkAttribute(text1, style: orangeStyle);
             case 'big':
-              return LinkAttribute(text1!, style: bigStyle);
+              return LinkAttribute(text1, style: bigStyle);
             default:
-              if (text2!.startsWith('http')) {
+              if (text2.startsWith('http')) {
                 return LinkAttribute(
-                  text1!,
+                  text1,
                   link: text2,
                   style: blueStyle,
                   highlightedStyle: highlightedStyle,
                 );
               } else {
-                return LinkAttribute(text1!);
+                return LinkAttribute(text1);
               }
           }
         }
         return LinkAttribute(s);
       },
-      onTap: (url) => launch(url, forceSafariVC: false),
-      onLongPress: (url) => _share(url),
+      onTap: _launchUrl,
+      onLongPress: _share,
     );
+  }
+
+  Future<bool> _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      return await launchUrl(uri);
+    } else {
+      return false;
+    }
+  }
+
+  Future _share(String text, [String? subject]) async {
+    try {
+      return await Share.share(text, subject: subject);
+    } on MissingPluginException catch (e) {
+      print("😡 $e");
+    }
   }
 
   Future _alert(BuildContext context, String title, [String? message]) {
@@ -193,13 +207,5 @@ This text is normal
         );
       },
     );
-  }
-
-  Future _share(String text) async {
-    try {
-      return await Share.share(text);
-    } on MissingPluginException catch (e) {
-      print("😡 $e");
-    }
   }
 }

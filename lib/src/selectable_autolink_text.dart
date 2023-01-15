@@ -5,7 +5,7 @@ import 'autolink_utils.dart';
 import 'highlighted_text_span.dart';
 import 'link_attr.dart';
 import 'selectable_text.dart' as my show SelectableText;
-import 'selectable_text.dart' hide SelectableText;
+import 'selectable_text.dart' show GesturePointCallback;
 import 'tap_and_long_press.dart';
 import 'text_element.dart';
 
@@ -19,8 +19,8 @@ class SelectableAutoLinkText extends StatefulWidget {
   final String text;
 
   /// Regular expression for link
-  /// If null, defaults RegExp([AutoLinkUtils._defaultLinkRegExpPattern]).
-  final RegExp linkRegExp;
+  /// If null, defaults RegExp([AutoLinkUtils.defaultLinkRegExpPattern]).
+  final RegExp _linkRegExp;
 
   /// Transform the display of Link
   /// Called when Link is displayed
@@ -112,7 +112,7 @@ class SelectableAutoLinkText extends StatefulWidget {
 
   SelectableAutoLinkText(
     this.text, {
-    Key? key,
+    super.key,
     String? linkRegExpPattern,
     this.onTransformDisplayLink,
     this.onTap,
@@ -143,9 +143,8 @@ class SelectableAutoLinkText extends StatefulWidget {
     this.textWidthBasis,
     this.onSelectionChanged,
     this.onDebugMatch,
-  })  : linkRegExp =
-            RegExp(linkRegExpPattern ?? AutoLinkUtils.defaultLinkRegExpPattern),
-        super(key: key);
+  }) : _linkRegExp =
+            RegExp(linkRegExpPattern ?? AutoLinkUtils.defaultLinkRegExpPattern);
 
   @override
   _SelectableAutoLinkTextState createState() => _SelectableAutoLinkTextState();
@@ -163,9 +162,7 @@ class _SelectableAutoLinkTextState extends State<SelectableAutoLinkText> {
   @override
   Widget build(BuildContext context) {
     return my.SelectableText.rich(
-      TextSpan(
-        children: _createTextSpans(),
-      ),
+      TextSpan(children: _createTextSpans()),
       focusNode: widget.focusNode,
       style: widget.style,
       strutStyle: widget.strutStyle,
@@ -193,12 +190,11 @@ class _SelectableAutoLinkTextState extends State<SelectableAutoLinkText> {
   }
 
   List<TextElement> _generateElements(String text) {
-    if (text.isNotEmpty != true) return [];
+    if (text.isEmpty) return [];
 
     final elements = <TextElement>[];
 
-    final matches = widget.linkRegExp.allMatches(text);
-
+    final matches = widget._linkRegExp.allMatches(text);
     if (matches.isEmpty) {
       elements.add(TextElement(
         type: TextElementType.text,
@@ -207,9 +203,7 @@ class _SelectableAutoLinkTextState extends State<SelectableAutoLinkText> {
     } else {
       var index = 0;
       matches.forEach((match) {
-        if (widget.onDebugMatch != null) {
-          widget.onDebugMatch!(match);
-        }
+        widget.onDebugMatch?.call(match);
 
         if (match.start != 0) {
           elements.add(TextElement(
@@ -240,11 +234,10 @@ class _SelectableAutoLinkTextState extends State<SelectableAutoLinkText> {
     return _generateElements(widget.text).map(
       (e) {
         var isLink = e.type == TextElementType.link;
-        final linkAttr = (isLink && widget.onTransformDisplayLink != null)
-            ? widget.onTransformDisplayLink!(e.text)
-            : null;
+        final linkAttr =
+            isLink ? widget.onTransformDisplayLink?.call(e.text) : null;
         final link = linkAttr != null ? linkAttr.link : e.text;
-        isLink &= link != null;
+        isLink = isLink && link != null;
 
         return HighlightedTextSpan(
           text: linkAttr?.text ?? e.text,
@@ -252,7 +245,7 @@ class _SelectableAutoLinkTextState extends State<SelectableAutoLinkText> {
           highlightedStyle: isLink
               ? (linkAttr?.highlightedStyle ?? widget.highlightedLinkStyle)
               : null,
-          recognizer: isLink ? _createGestureRecognizer(link!) : null,
+          recognizer: isLink ? _createGestureRecognizer(link) : null,
         );
       },
     ).toList();

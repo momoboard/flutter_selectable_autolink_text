@@ -8,7 +8,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 
 import 'highlighted_text_span.dart';
 import 'tap_and_long_press.dart';
@@ -266,7 +265,7 @@ class SelectableText extends StatefulWidget {
   /// than zero.
   const SelectableText(
     String this.data, {
-    Key? key,
+    super.key,
     this.focusNode,
     this.style,
     this.strutStyle,
@@ -302,8 +301,7 @@ class SelectableText extends StatefulWidget {
             const ToolbarOptions(
               selectAll: true,
               copy: true,
-            ),
-        super(key: key);
+            );
 
   /// Creates a selectable text widget with a [TextSpan].
   ///
@@ -313,7 +311,7 @@ class SelectableText extends StatefulWidget {
   /// The [autofocus] and [dragStartBehavior] arguments must not be null.
   const SelectableText.rich(
     TextSpan this.textSpan, {
-    Key? key,
+    super.key,
     this.focusNode,
     this.style,
     this.strutStyle,
@@ -349,8 +347,7 @@ class SelectableText extends StatefulWidget {
             const ToolbarOptions(
               selectAll: true,
               copy: true,
-            ),
-        super(key: key);
+            );
 
   /// The text to display.
   ///
