@@ -96,6 +96,10 @@ class SelectableAutoLinkText extends StatefulWidget {
   final DragStartBehavior dragStartBehavior;
 
   /// {@macro flutter.material.SelectableText.toolbarOptions}
+  @Deprecated(
+    'Use `contextMenuBuilder` instead. '
+    'This feature was deprecated after v3.3.0-0.5.pre.',
+  )
   final ToolbarOptions? toolbarOptions;
 
   /// {@macro flutter.widgets.editableText.scrollPhysics}
@@ -106,6 +110,12 @@ class SelectableAutoLinkText extends StatefulWidget {
 
   /// {@macro flutter.widgets.editableText.onSelectionChanged}
   final SelectionChangedCallback? onSelectionChanged;
+
+  /// {@macro flutter.widgets.EditableText.contextMenuBuilder}
+  final EditableTextContextMenuBuilder? contextMenuBuilder;
+
+  /// {@macro flutter.widgets.magnifier}
+  final TextMagnifierConfiguration? magnifierConfiguration;
 
   /// For debugging linkRegExp
   final OnDebugMatchFunction? onDebugMatch;
@@ -138,10 +148,16 @@ class SelectableAutoLinkText extends StatefulWidget {
     this.cursorColor,
     this.enableInteractiveSelection = true,
     this.dragStartBehavior = DragStartBehavior.start,
-    this.toolbarOptions,
+    @Deprecated(
+      'Use `contextMenuBuilder` instead. '
+      'This feature was deprecated after v3.3.0-0.5.pre.',
+    )
+        this.toolbarOptions,
     this.scrollPhysics,
     this.textWidthBasis,
     this.onSelectionChanged,
+    this.contextMenuBuilder = my.SelectableText.defaultContextMenuBuilder,
+    this.magnifierConfiguration,
     this.onDebugMatch,
   }) : _linkRegExp =
             RegExp(linkRegExpPattern ?? AutoLinkUtils.defaultLinkRegExpPattern);
@@ -180,9 +196,12 @@ class _SelectableAutoLinkTextState extends State<SelectableAutoLinkText> {
       cursorColor: widget.cursorColor,
       enableInteractiveSelection: widget.enableInteractiveSelection,
       dragStartBehavior: widget.dragStartBehavior,
+      // ignore: deprecated_member_use_from_same_package
       toolbarOptions: widget.toolbarOptions,
       scrollPhysics: widget.scrollPhysics,
       textWidthBasis: widget.textWidthBasis,
+      contextMenuBuilder: widget.contextMenuBuilder,
+      magnifierConfiguration: widget.magnifierConfiguration,
       onTap: widget.onTapOther,
       onLongPress: widget.onLongPressOther,
       onSelectionChanged: widget.onSelectionChanged,
