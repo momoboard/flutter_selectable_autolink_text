@@ -1,3 +1,7 @@
+## [2.5.0] - 2023-03-30
+
+* Support contextMenuBuilder
+
 ## [2.4.1] - 2023-01-15
 
 * Fix longPress event

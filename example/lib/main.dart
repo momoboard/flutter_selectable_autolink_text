@@ -36,7 +36,6 @@ class _MyHomePage extends StatelessWidget {
             _custom(context),
             const Divider(height: 32),
             _moreAdvanced(context),
-            SelectableText(''),
           ],
         ),
       ),
@@ -57,6 +56,20 @@ class _MyHomePage extends StatelessWidget {
       ),
       onTap: _launchUrl,
       onLongPress: _share,
+      contextMenuBuilder: (context, state) {
+        return AdaptiveTextSelectionToolbar.buttonItems(
+          buttonItems: state.contextMenuButtonItems
+            ..add(ContextMenuButtonItem(
+              label: 'Print',
+              onPressed: () {
+                final v = state.currentTextEditingValue;
+                print(
+                    '☕️ ${v.text.substring(v.selection.start, v.selection.end)}');
+              },
+            )),
+          anchors: state.contextMenuAnchors,
+        );
+      },
     );
   }
 
