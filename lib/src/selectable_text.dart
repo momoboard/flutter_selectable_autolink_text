@@ -67,7 +67,7 @@ class _SelectableTextSelectionGestureDetectorBuilder
   var _cancelSingleLongTapEnd = false;
 
   @override
-  void onTapDown(TapDownDetails details) {
+  void onTapDown(TapDragDownDetails details) {
     final position = renderEditable.getPositionForPoint(details.globalPosition);
     final span = renderEditable.text!.getSpanForPosition(position);
     if (span is HighlightedTextSpan) {
@@ -91,7 +91,7 @@ class _SelectableTextSelectionGestureDetectorBuilder
   }
 
   @override
-  void onSingleTapUp(TapUpDetails details) {
+  void onSingleTapUp(TapDragUpDetails details) {
     try {
       _cancelDoubleTapDown = false;
       editableText.hideToolbar();
@@ -186,7 +186,7 @@ class _SelectableTextSelectionGestureDetectorBuilder
   }
 
   @override
-  void onDoubleTapDown(TapDownDetails details) {
+  void onDoubleTapDown(TapDragDownDetails details) {
     _clearHighlight();
     if (!_cancelDoubleTapDown) {
       super.onDoubleTapDown(details);
