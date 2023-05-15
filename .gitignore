@@ -118,3 +118,6 @@ coverage/
 ios/Flutter/flutter_export_environment.sh
 example/ios/Flutter/.last_build_id
 example/.flutter-plugins-dependencies
+
+# Fvm
+.fvm/flutter_sdk

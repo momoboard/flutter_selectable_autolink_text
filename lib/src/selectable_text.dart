@@ -149,7 +149,7 @@ class _SelectableTextSelectionGestureDetectorBuilder
       if (onLongPress != null) {
         renderEditable.selectPositionAt(
           from: details.globalPosition,
-          cause: SelectionChangedCause.tap,
+          cause: SelectionChangedCause.longPress,
         );
         _cancelSingleLongTapEnd = true;
         onLongPress();
@@ -829,7 +829,7 @@ class _SelectableTextState extends State<SelectableText>
       effectiveTextStyle = defaultTextStyle.style
           .merge(widget.style ?? _controller._textSpan.style);
     }
-    if (MediaQuery.boldTextOverride(context)) {
+    if (MediaQuery.boldTextOf(context)) {
       effectiveTextStyle = effectiveTextStyle
           .merge(const TextStyle(fontWeight: FontWeight.bold));
     }

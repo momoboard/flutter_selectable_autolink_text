@@ -1,18 +1,17 @@
 name: example
 description: Example
 publish_to: none
-version: 2.5.0
 
 environment:
-  sdk: ">=2.19.0 <3.0.0"
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
   selectable_autolink_text:
     path: ../../flutter_selectable_autolink_text
-  url_launcher: ^6.1.10
-  share: ^2.0.4
+  url_launcher: ^6.1.11
+  share_plus: ^7.0.0
 
 flutter:
   uses-material-design: true

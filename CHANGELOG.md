@@ -1,3 +1,7 @@
+## [2.6.0] - 2023-05-15
+
+* Support Flutter 3.10.0
+
 ## [2.5.0] - 2023-03-30
 
 * Support contextMenuBuilder
