@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:selectable_autolink_text/selectable_autolink_text.dart';
@@ -36,6 +37,8 @@ class _MyHomePage extends StatelessWidget {
             _custom(context),
             const Divider(height: 32),
             _moreAdvanced(context),
+            const Divider(height: 32),
+            _richText(context),
           ],
         ),
       ),
@@ -112,6 +115,55 @@ email: mail@example.com''',
       '\nHi! @screen_name.'
       ' If you customize the regular expression, you can make them.'
       ' #hash_tag',
+      style: const TextStyle(color: Colors.black87),
+      linkStyle: const TextStyle(color: Colors.deepOrangeAccent),
+      highlightedLinkStyle: TextStyle(
+        color: Colors.deepOrangeAccent,
+        backgroundColor: Colors.deepOrangeAccent.withAlpha(0x33),
+      ),
+      linkRegExpPattern: '(@[\\w]+|#[\\w]+|${AutoLinkUtils.urlRegExpPattern})',
+      onTransformDisplayLink: AutoLinkUtils.shrinkUrl,
+      onTap: (url) => _alert(context, '🍒 Tap', url),
+      onLongPress: (url) => _alert(context, '🍩 LongPress', url),
+      onDebugMatch: (match) {
+        /// for debug
+        print('DebugMatch:[${match.start}-${match.end}]`${match.group(0)}`');
+      },
+    );
+  }
+
+  Widget _richText(BuildContext context) {
+    return SelectableAutoLinkRichText<MyModel>(
+      [
+        MyModel.text('Custom links\nHi! '),
+        MyModel.custom({
+          "text": "@screen_name",
+          "style": TextStyle(
+              height: 1.3,
+              decoration: TextDecoration.underline,
+              color: Colors.blueAccent)
+        }),
+        MyModel.text(
+            ".\n If you customize the regular expression, you can make them."),
+        MyModel.custom({
+          "text": "#hash_tag",
+          "style": TextStyle(
+              height: 1.3,
+              decoration: TextDecoration.underline,
+              color: Colors.redAccent)
+        }),
+      ],
+      customRichTextSpanBuilder: (dynamic data) {
+        return [
+          TextSpan(
+              recognizer: TapGestureRecognizer()
+                ..onTap = () {
+                  print(data.model);
+                },
+              text: '${data.model['text']}',
+              style: data.model['style']),
+        ];
+      },
       style: const TextStyle(color: Colors.black87),
       linkStyle: const TextStyle(color: Colors.deepOrangeAccent),
       highlightedLinkStyle: TextStyle(
@@ -220,5 +272,25 @@ This text is normal
         );
       },
     );
+  }
+}
+
+class MyModel with AutoLinkRichTextMixin {
+  RichTextType type;
+  String? text;
+  dynamic model;
+
+  MyModel.text(this.text) : this.type = RichTextType.TEXT;
+
+  MyModel.custom(this.model) : this.type = RichTextType.CUSTOM;
+
+  @override
+  String getRichText() {
+    return text ?? "";
+  }
+
+  @override
+  RichTextType getRichTextType() {
+    return type;
   }
 }
